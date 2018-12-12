@@ -15,6 +15,8 @@ before_install:
 
 before_script:
   - cp config/ci.config.json config/project.json
+  - firebase setup:emulators:firestore
+  - firebase serve --only firestore &
 
 # Misc Addons/Configs
 dist: trusty
@@ -32,33 +34,67 @@ matrix:
   fast_finish: true
 
 jobs:
-  allow_failures:
-    - script: yarn test:saucelabs
-    - script: yarn test:saucelabs --database-firestore-only
-    # TODO(yifanyang): Once we verify the emulator tests are reliable, we
-    # should make these tests blocking rather than allow failures.
-    - script: node scripts/testing/database-emulator-test.js
   include:
-    - name: Node.js and Browser (Chrome) Test
+    - name: batch_writes.test.ts
       stage: test
-      script: xvfb-run yarn test
-      after_success: yarn test:coverage
-    - name: Cross Browser Test for SDKs except Database and Firestore
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/batch_writes.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: cursor.test.ts
       stage: test
-      script: yarn test:saucelabs
-      if: type = push
-    - name: Cross Browser Test for Database and Firestore SDK
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/cursor.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: database.test.ts
       stage: test
-      script: yarn test:saucelabs --database-firestore-only
-      if: type = push
-    - name: Database Node.js and Browser (Chrome) Test with Emulator
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/database.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: fields.test.ts
       stage: test
-      script: node scripts/testing/database-emulator-test.js
-    - stage: deploy
-      script: skip
-      # NPM Canary Build Config
-      deploy:
-        skip_cleanup: true
-        provider: script
-        script: yarn release --canary
-      if: type = push AND repo = firebase/firebase-js-sdk AND branch = master
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/fields.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: server_timestamp.test.ts
+      stage: test
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/server_timestamp.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: transactions.test.ts
+      stage: test
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/transactions.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: type.test.ts
+      stage: test
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/type.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: validation.test.ts
+      stage: test
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/api/validation.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
+    - name: remote.test.ts
+      stage: test
+      script:
+        - sleep 5
+        - cd packages/firestore
+        - npx mocha 'test/integration/remote/remote.test.ts' --require ts-node/register/type-check --require index.node.ts --timeout 5000 --exit
+      env: FIRESTORE_EMULATOR_PORT=8080
