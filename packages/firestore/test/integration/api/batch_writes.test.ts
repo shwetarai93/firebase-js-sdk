@@ -21,6 +21,8 @@ import { EventsAccumulator } from '../util/events_accumulator';
 import firebase from '../util/firebase_export';
 import * as integrationHelpers from '../util/helpers';
 
+const USE_EMULATOR = integrationHelpers.USE_EMULATOR;
+
 const apiDescribe = integrationHelpers.apiDescribe;
 const Timestamp = firebase.firestore!.Timestamp;
 const FieldValue = firebase.firestore!.FieldValue;
@@ -70,7 +72,7 @@ apiDescribe('Database batch writes', persistence => {
     });
   });
 
-  it('can update documents', () => {
+  (!persistence && USE_EMULATOR ? it.skip : it)('can update documents', () => {
     return integrationHelpers.withTestDoc(persistence, doc => {
       return doc
         .set({ foo: 'bar' })

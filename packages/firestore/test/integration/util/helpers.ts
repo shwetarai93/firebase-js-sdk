@@ -29,7 +29,7 @@ const PROJECT_CONFIG = require('../../../../../config/project.json');
 
 const EMULATOR_PORT = process.env.FIRESTORE_EMULATOR_PORT;
 const EMULATOR_PROJECT_ID = 'emulator-test-db1';
-const USE_EMULATOR = !!EMULATOR_PORT;
+export const USE_EMULATOR = !!EMULATOR_PORT;
 
 const EMULATOR_FIRESTORE_SETTING = {
   host: `localhost:${EMULATOR_PORT}`,

@@ -19,7 +19,7 @@ import { expect } from 'chai';
 
 import { EventsAccumulator } from '../util/events_accumulator';
 import firebase from '../util/firebase_export';
-import { apiDescribe, withTestDoc } from '../util/helpers';
+import { apiDescribe, withTestDoc, USE_EMULATOR } from '../util/helpers';
 
 // tslint:disable-next-line:no-any Allow custom types for testing.
 type AnyTestData = any;
@@ -205,25 +205,28 @@ apiDescribe('Server Timestamps', persistence => {
     });
   });
 
-  it('can return previous value', () => {
-    let previousSnapshot: firestore.DocumentSnapshot;
+  (!persistence && USE_EMULATOR ? it.skip : it)(
+    'can return previous value',
+    () => {
+      let previousSnapshot: firestore.DocumentSnapshot;
 
-    return withTestSetup(() => {
-      return writeInitialData()
-        .then(() => docRef.update(updateData))
-        .then(() => accumulator.awaitLocalEvent())
-        .then(snapshot => verifyTimestampsUsePreviousValue(snapshot, null))
-        .then(() => accumulator.awaitRemoteEvent())
-        .then(snapshot => {
-          previousSnapshot = snapshot;
-        })
-        .then(() => docRef.update(updateData))
-        .then(() => accumulator.awaitLocalEvent())
-        .then(snapshot =>
-          verifyTimestampsUsePreviousValue(snapshot, previousSnapshot)
-        );
-    });
-  });
+      return withTestSetup(() => {
+        return writeInitialData()
+          .then(() => docRef.update(updateData))
+          .then(() => accumulator.awaitLocalEvent())
+          .then(snapshot => verifyTimestampsUsePreviousValue(snapshot, null))
+          .then(() => accumulator.awaitRemoteEvent())
+          .then(snapshot => {
+            previousSnapshot = snapshot;
+          })
+          .then(() => docRef.update(updateData))
+          .then(() => accumulator.awaitLocalEvent())
+          .then(snapshot =>
+            verifyTimestampsUsePreviousValue(snapshot, previousSnapshot)
+          );
+      });
+    }
+  );
 
   it('can return previous value of different type', () => {
     return withTestSetup(() => {

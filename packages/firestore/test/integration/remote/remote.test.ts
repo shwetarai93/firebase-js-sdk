@@ -25,11 +25,12 @@ import { MutationResult } from '../../../src/model/mutation';
 import { addEqualityMatcher } from '../../util/equality_matcher';
 import { key, setMutation } from '../../util/helpers';
 import { withTestDatastore } from '../util/internal_helpers';
+import { USE_EMULATOR } from '../util/helpers';
 
 describe('Remote Storage', () => {
   addEqualityMatcher();
 
-  it('can write', () => {
+  (USE_EMULATOR ? it.skip : it)('can write', () => {
     return withTestDatastore(ds => {
       const mutation = setMutation('docs/1', { sort: 1 });
 
